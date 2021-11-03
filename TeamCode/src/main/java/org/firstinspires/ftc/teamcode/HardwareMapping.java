@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class HardwareMapping {
     public DriveTrainHardware driveTrain = null;
+    public RevBlinkinLedDriver blinkin = null;
 
     /**
      * Empty constructor for the HardwareMap. This is called whenever the HardwareMap class is
@@ -22,5 +24,7 @@ public class HardwareMapping {
     public void init(HardwareMap hwMap) {
         driveTrain = new DriveTrainHardware();
         driveTrain.init(hwMap);
+
+        blinkin = hwMap.get(RevBlinkinLedDriver.class, "blinkin");
     }
 }
