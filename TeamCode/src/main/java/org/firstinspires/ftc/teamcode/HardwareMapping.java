@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class HardwareMapping {
     public DriveTrainHardware driveTrain = null;
+    public EndAffectorHardware endAffectorHardware = null;
     public RevBlinkinLedDriver blinkin = null;
 
     /**
@@ -24,6 +25,9 @@ public class HardwareMapping {
     public void init(HardwareMap hwMap) {
         driveTrain = new DriveTrainHardware();
         driveTrain.init(hwMap);
+
+        endAffectorHardware = new EndAffectorHardware();
+        endAffectorHardware.init(hwMap);
 
         blinkin = hwMap.get(RevBlinkinLedDriver.class, "blinkin");
     }

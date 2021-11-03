@@ -105,6 +105,8 @@ public class TeleOp_Mechanum extends OpMode
         // Set the motor powers equal to the output of the mecanum movement model. Smooth this.
         this.driveControl.setMotorPowerSmooth(DriveControl.MecanumMovement(drive, strafe, turn));
 
+        this.robot.endAffectorHardware.handleGamepad(gamepad1);
+
         // Handle LED Driver
         this.blinkinControl.handleGamePad(gamepad1);
         if (this.blinkinControl.patternMode == BlinkinControl.PatternMode.AUTO) {
