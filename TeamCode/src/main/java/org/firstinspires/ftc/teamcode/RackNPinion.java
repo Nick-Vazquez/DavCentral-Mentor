@@ -29,12 +29,13 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -50,14 +51,15 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Mecanum TeleOp", group="TeleOp")
-public class TeleOp_Mechanum extends OpMode
+@TeleOp(name="Rack N' Pinion", group="Test OpModes")
+public class RackNPinion extends OpMode
 {
     // Declare OpMode members.
-    private ElapsedTime runtime     = new ElapsedTime();
-    private HardwareMapping robot   = new HardwareMapping();
-    private DriveControl driveControl;
-    private BlinkinControl blinkinControl;
+    private ElapsedTime runtime = new ElapsedTime();
+
+    private DcMotor rackMotor = null;
+
+    private static final double SMOOTHING_FACTOR = 0.05;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -65,17 +67,12 @@ public class TeleOp_Mechanum extends OpMode
     @Override
     public void init() {
         telemetry.addData("Status", "Initializing");
-        // Initialize the robot. This will call the init method of the hardware map class, which
-        // can then init any number of sub classes.
-        robot.init(this.hardwareMap);
 
-        driveControl = new DriveControl(robot.driveTrain.leftFront,
-                robot.driveTrain.rightFront,
-                robot.driveTrain.rightBack,
-                robot.driveTrain.leftBack);
+        rackMotor = hardwareMap.get(DcMotor.class, "rackMotor");
 
-        blinkinControl = new BlinkinControl(robot.blinkin, telemetry);
-        blinkinControl.init();
+        rackMotor.setDirection(DcMotor.Direction.FORWARD);
+        rackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rackMotor.setPower(0);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -101,25 +98,16 @@ public class TeleOp_Mechanum extends OpMode
      */
     @Override
     public void loop() {
-        double drive = -gamepad1.left_stick_y;
-        double strafe = -gamepad1.left_stick_x;
-        double turn  =  gamepad1.right_stick_x;
+        // Setup a variable for each drive wheel to save power level for telemetry
+        double rackInput = -gamepad2.left_stick_y;
 
-        // Set the motor powers equal to the output of the mecanum movement model. Smooth this.
-        List<Double> powers = DriveControl.MecanumMovement(drive, strafe, turn);
-        this.driveControl.setMotorPowerSmooth(powers);
-
-        this.robot.endAffectorHardware.handleGamepad(gamepad1);
-
-        // Handle LED Driver
-        this.blinkinControl.handleGamePad(gamepad1);
-        if (this.blinkinControl.patternMode == BlinkinControl.PatternMode.AUTO) {
-            this.blinkinControl.doAutoDisplay();
-        }
+        //apply some smoothing
+        double currVal = rackMotor.getPower();
+        double power = rackInput * SMOOTHING_FACTOR + currVal * (1 - SMOOTHING_FACTOR);
+        rackMotor.setPower(power);
 
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)");
+        telemetry.addData("Rack Motor", "Power: " + rackMotor.getPower());
     }
 
     /*
@@ -128,5 +116,4 @@ public class TeleOp_Mechanum extends OpMode
     @Override
     public void stop() {
     }
-
 }
